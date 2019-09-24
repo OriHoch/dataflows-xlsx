@@ -22,12 +22,6 @@ Full example:
 from dataflows import Flow
 from dataflows_xlsx import dump_to_path
 
-
-def get_data():
-    for i in range(10):
-        yield {'i': i, 'foo': 'bar{}'.format(i)}
-
-
 Flow(
     [{'i': i, 'foo': 'bar{}'.format(i)} for i in range(10)],
     dump_to_path('tests/data/test_dump_to_xlsx', format='xlsx')
