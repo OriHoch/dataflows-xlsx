@@ -29,7 +29,7 @@ class XLSXWriter(object):
 
 class XLSXFormat(CSVFormat):
 
-    def __init__(self, file, schema, use_titles=False):
+    def __init__(self, file, schema, use_titles=False, **kwargs):
         headers = [f.name for f in schema.fields]
         if use_titles:
             titles = [f.descriptor.get('title', f.name) for f in schema.fields]
