@@ -6,9 +6,11 @@ from dataflows.processors.dumpers.file_formats import CSVFormat
 
 class XLSXWriter(object):
 
-    def __init__(self, file, headers, titles=None):
+    def __init__(self, file, headers, schema, titles=None):
         self.file = file
         self.headers = headers
+        self.schema = schema
+        self.schema_fields = {f.name: f for f in self.schema.fields}
         self.workbook = openpyxl.Workbook()
         self.workbook.active.append(titles or self.headers)
 
@@ -20,6 +22,15 @@ class XLSXWriter(object):
                 value = value.strftime('%Y-%m-%d %H:%M:%S')
             elif isinstance(value, list):
                 value = ', '.join(map(str, value))
+            else:
+                try:
+                    field_type = self.schema_fields[field_name].type
+                    if field_type == 'integer':
+                        value = int(value)
+                    elif field_type == 'number':
+                        value = float(value)
+                except:
+                    pass
             cells.append(value)
         self.workbook.active.append(cells)
 
@@ -33,9 +44,9 @@ class XLSXFormat(CSVFormat):
         headers = [f.name for f in schema.fields]
         if use_titles:
             titles = [f.descriptor.get('title', f.name) for f in schema.fields]
-            xlsx_writer = XLSXWriter(file, headers, titles)
+            xlsx_writer = XLSXWriter(file, headers, schema, titles)
         else:
-            xlsx_writer = XLSXWriter(file, headers)
+            xlsx_writer = XLSXWriter(file, headers, schema)
         super(CSVFormat, self).__init__(xlsx_writer, schema)
 
     @classmethod
